@@ -2,8 +2,7 @@ import { dbConnect } from "@/lib/dbConnect";
 
 export async function GET(req) {
   try {
-    const db = await dbConnect();
-    const servicesCollection = db.collection("services");
+    const servicesCollection = await dbConnect("services");
 
     // Check if services exist, if not seed them
     const count = await servicesCollection.countDocuments();
@@ -76,8 +75,7 @@ export async function GET(req) {
 export async function POST(req) {
   try {
     const serviceData = await req.json();
-    const db = await dbConnect();
-    const servicesCollection = db.collection("services");
+    const servicesCollection = await dbConnect("services");
 
     // Add default fields
     const newService = {

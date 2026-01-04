@@ -4,8 +4,7 @@ import { dbConnect } from "@/lib/dbConnect";
 export async function POST(req) {
   try {
     const bookingData = await req.json();
-    const db = await dbConnect();
-    const bookingsCollection = db.collection("bookings");
+    const bookingsCollection = await dbConnect("bookings");
 
     const result = await bookingsCollection.insertOne({
       ...bookingData,
@@ -31,8 +30,7 @@ export async function POST(req) {
 export async function GET(req) {
   try {
     const email = req.nextUrl.searchParams.get("email");
-    const db = await dbConnect();
-    const bookingsCollection = db.collection("bookings");
+    const bookingsCollection = await dbConnect("bookings");
 
     if (!email) {
       return Response.json(

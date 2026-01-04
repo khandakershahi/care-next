@@ -3,7 +3,7 @@
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Upload, Plus, X } from "lucide-react";
+import { Upload, Plus, X, Image as ImageIcon } from "lucide-react";
 
 export default function AddServicePage() {
   const { data: session, status } = useSession();
@@ -11,6 +11,7 @@ export default function AddServicePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [features, setFeatures] = useState([""]);
   const [imageUrl, setImageUrl] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -31,6 +32,52 @@ export default function AddServicePage() {
     const newFeatures = [...features];
     newFeatures[index] = value;
     setFeatures(newFeatures);
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      alert("Please select a valid image file");
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Image size should be less than 5MB");
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("image", file);
+
+      const response = await fetch(
+        `https://api.imgbb.com/1/upload?key=${process.env.NEXT_PUBLIC_IMGBB_API_KEY}`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.success) {
+        setImageUrl(data.data.display_url);
+        alert("Image uploaded successfully!");
+      } else {
+        alert("Failed to upload image. Please try again.");
+      }
+    } catch (error) {
+      console.error("Image upload error:", error);
+      alert("Error uploading image. Please try again.");
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -102,6 +149,7 @@ export default function AddServicePage() {
             <div className="form-control">
               <label className="label">
                 <span className="label-text font-semibold">Service Image</span>
+                <span className="label-text-alt">Upload or provide URL</span>
               </label>
               <div className="flex flex-col gap-4">
                 {imageUrl && (
@@ -116,10 +164,41 @@ export default function AddServicePage() {
                     />
                   </div>
                 )}
+                
+                {/* File Upload */}
+                <div className="flex gap-2">
+                  <label className="flex-1">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                      disabled={isUploading}
+                    />
+                    <div className={`btn btn-outline w-full gap-2 ${isUploading ? 'loading' : ''}`}>
+                      {isUploading ? (
+                        <>
+                          <span className="loading loading-spinner loading-sm"></span>
+                          Uploading...
+                        </>
+                      ) : (
+                        <>
+                          <ImageIcon className="w-4 h-4" />
+                          Upload Image
+                        </>
+                      )}
+                    </div>
+                  </label>
+                </div>
+
+                {/* Divider */}
+                <div className="divider my-0">OR</div>
+
+                {/* URL Input */}
                 <input
                   type="url"
                   name="image"
-                  placeholder="Enter image URL"
+                  placeholder="Paste image URL"
                   value={imageUrl}
                   onChange={(e) => setImageUrl(e.target.value)}
                   className="input input-bordered w-full"

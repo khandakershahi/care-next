@@ -6,8 +6,7 @@ export async function PATCH(req, { params }) {
   try {
     const { id } = await params;
     const { status } = await req.json();
-    const db = await dbConnect();
-    const bookingsCollection = db.collection("bookings");
+    const bookingsCollection = await dbConnect("bookings");
 
     const result = await bookingsCollection.updateOne(
       { _id: new ObjectId(id) },
@@ -38,8 +37,7 @@ export async function PATCH(req, { params }) {
 export async function GET(req, { params }) {
   try {
     const { id } = await params;
-    const db = await dbConnect();
-    const bookingsCollection = db.collection("bookings");
+    const bookingsCollection = await dbConnect("bookings");
 
     const booking = await bookingsCollection.findOne({
       _id: new ObjectId(id),

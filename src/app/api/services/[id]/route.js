@@ -4,8 +4,7 @@ import { ObjectId } from "mongodb";
 export async function GET(req, { params }) {
   try {
     const { id } = await params;
-    const db = await dbConnect();
-    const servicesCollection = db.collection("services");
+    const servicesCollection = await dbConnect("services");
 
     const service = await servicesCollection.findOne({ _id: id });
 
