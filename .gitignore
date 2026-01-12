@@ -39,3 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+#folder and file
+demo-html
+demo-html/*
+Assignment _ Next JS-1.pdf
